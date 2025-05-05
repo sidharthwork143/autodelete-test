@@ -4,7 +4,7 @@ from telegram.ext import Application, CommandHandler, MessageHandler, ContextTyp
 import os
 import asyncio
 
-TOKEN = os.environ.get("7625916423:AAEKuSbQoBZQc55Qa0jvsqgK8t4dAJqk7Rs")  # Set this in Koyeb environment variables
+TOKEN = os.environ.get("6784408206:AAFSOQucgKmfW3pFzCtnGzOdgxs6LstnMNw")  # Set this in Koyeb environment variables
 DELETE_DELAY_SECONDS = 300  # 5 minutes. Change to desired seconds
 
 START_IMAGE_URL = "https://graph.org/file/f2265b52c6e7ac76c0b1b-31403b341de15b1ff2.jpg"  # Replace with your image URL
