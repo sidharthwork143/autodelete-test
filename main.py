@@ -16,8 +16,8 @@ logger = logging.getLogger(__name__)
 
 # Configuration - you can change these settings
 DEFAULT_DELETE_DELAY = 300  # 5 minutes in seconds
-WELCOME_IMAGE_URL = "https://your-image-url.com/bot-welcome.jpg"  # Replace with your image URL
-BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "YOUR_BOT_TOKEN")  # Set this in Koyeb environment variables
+WELCOME_IMAGE_URL = "https://graph.org/file/f2265b52c6e7ac76c0b1b-31403b341de15b1ff2.jpg"  # Replace with your image URL
+BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "7240317536:AAHttmotBWfOAFk18Q8L1q1bXJTsQ_vaPEM")  # Set this in Koyeb environment variables
 
 # Dictionary to store group configurations: {group_id: delete_delay_in_seconds}
 group_configs: Dict[int, int] = {}
@@ -30,7 +30,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     # Create inline keyboard with a customizable button
     keyboard = [
         [InlineKeyboardButton("Setup Guide", callback_data="setup_guide")],
-        [InlineKeyboardButton("Visit Our Channel", url="https://t.me/your_channel")]  # Change this URL
+        [InlineKeyboardButton("Visit Our Channel", url="https://t.me/filmy_men")]  # Change this URL
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
     
@@ -79,7 +79,7 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
 3. Set your preferred auto-delete delay with /setdelay [seconds]
 4. The bot will now automatically delete messages after the set time
 
-*For more help, contact @YourUsername*
+*For more help, contact @Gojo_SatoruJi*
         """
         await query.message.reply_text(guide_text, parse_mode=ParseMode.MARKDOWN)
 
