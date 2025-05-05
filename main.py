@@ -1,54 +1,69 @@
-from flask import Flask, request
-from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton, InputMediaPhoto
-from telegram.ext import Application, CommandHandler, MessageHandler, ContextTypes, filters
 import os
 import asyncio
+from flask import Flask, request
+from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton
+from telegram.ext import (
+    Application, CommandHandler, MessageHandler,
+    ContextTypes, filters
+)
 
-TOKEN = os.environ.get("5936763856:AAFLWJ80089Hfu4ebtXg23KE67UAWaz2Rp0")  # Set this in Koyeb environment variables
-DELETE_DELAY_SECONDS = 300  # 5 minutes. Change to desired seconds
+# ========================
+# CONFIGURATION
+# ========================
 
-START_IMAGE_URL = "https://graph.org/file/f2265b52c6e7ac76c0b1b-31403b341de15b1ff2.jpg"  # Replace with your image URL
-START_CAPTION = "🤖 This bot deletes user messages after a set time.\n\n🛠 Features:\n- Auto delete\n- Custom caption\n- Inline button"
+BOT_TOKEN = os.environ.get("BOT_TOKEN")
+DELETE_AFTER_SECONDS = int(os.environ.get("DELETE_AFTER", 300))
 
-INLINE_BUTTON_TEXT = "View Source"
-INLINE_BUTTON_URL = "https://github.com/your-bot-link"
+START_PHOTO_URL = "https://images.unsplash.com/photo-1507525428034-b723cf961d3e"
+START_QUOTE = "🌟 *“The best way to predict the future is to create it.”*"
+BUTTON_TEXT = "🔗 Visit Source"
+BUTTON_URL = "https://example.com"
 
-# Flask setup
+# ========================
+# FLASK APP
+# ========================
+
 app = Flask(__name__)
 
 @app.route('/')
-def home():
-    return "Bot is running!"
+def index():
+    return "🤖 Bot is running on Koyeb!"
 
-# Telegram bot setup
-bot_app = Application.builder().token(TOKEN).build()
+# ========================
+# TELEGRAM BOT SETUP
+# ========================
+
+telegram_app = Application.builder().token(BOT_TOKEN).build()
 
 # Start command
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    keyboard = InlineKeyboardMarkup([[InlineKeyboardButton(INLINE_BUTTON_TEXT, url=INLINE_BUTTON_URL)]])
+    keyboard = InlineKeyboardMarkup([
+        [InlineKeyboardButton(BUTTON_TEXT, url=BUTTON_URL)]
+    ])
     await update.message.reply_photo(
-        photo=START_IMAGE_URL,
-        caption=START_CAPTION,
+        photo=START_PHOTO_URL,
+        caption=START_QUOTE,
+        parse_mode="Markdown",
         reply_markup=keyboard
     )
 
-# Message handler to auto-delete
-async def handle_group_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    if update.message.chat.type in ['group', 'supergroup']:
-        msg = update.message
-        await asyncio.sleep(DELETE_DELAY_SECONDS)
+# Message auto-delete handler
+async def delete_after_delay(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    msg = update.message
+    if msg.chat.type in ['group', 'supergroup'] and not msg.from_user.is_bot:
+        await asyncio.sleep(DELETE_AFTER_SECONDS)
         try:
-            await context.bot.delete_message(chat_id=msg.chat.id, message_id=msg.message_id)
+            await msg.delete()
         except Exception as e:
-            print(f"Failed to delete message: {e}")
+            print(f"❌ Could not delete message: {e}")
 
-# Telegram webhook handler
-@app.route(f"/{TOKEN}", methods=["POST"])
+# Telegram webhook endpoint
+@app.route(f"/{BOT_TOKEN}", methods=["POST"])
 def webhook():
-    update = Update.de_json(request.get_json(force=True), bot_app.bot)
-    bot_app.update_queue.put_nowait(update)
+    update = Update.de_json(request.get_json(force=True), telegram_app.bot)
+    telegram_app.update_queue.put_nowait(update)
     return "ok"
 
 # Register handlers
-bot_app.add_handler(CommandHandler("start", start))
-bot_app.add_handler(MessageHandler(filters.TEXT & (~filters.COMMAND), handle_group_message))
+telegram_app.add_handler(CommandHandler("start", start))
+telegram_app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, delete_after_delay))
